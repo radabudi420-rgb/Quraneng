@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhikr & Supplications Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #004d40;
+            --secondary: #00695c;
+            --accent: #f4bb44;
+            --bg: #f1f5f9;
+        }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: #1e293b; padding-bottom: 80px; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .back-link { color: white; text-decoration: none; font-size: 24px; width: 40px; }
+        .container { max-width: 600px; margin: auto; padding: 10px; }
+        
+        .category-title { font-size: 13px; font-weight: 800; color: var(--secondary); margin: 25px 5px 12px; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; }
+        .category-title::after { content: ""; flex: 1; height: 1px; background: #cbd5e1; margin-left: 10px; }
+
+        .doa-card { background: white; border-radius: 20px; padding: 22px; margin-bottom: 18px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .doa-title { font-weight: 600; color: var(--primary); font-size: 16px; margin-bottom: 8px; }
+        .doa-arabic { font-family: 'Amiri', serif; font-size: 28px; text-align: right; line-height: 2.2; direction: rtl; color: #000; margin: 15px 0; }
+        .doa-translation { font-size: 14px; color: #64748b; line-height: 1.6; font-style: italic; margin-bottom: 20px; border-left: 3px solid #e2e8f0; padding-left: 12px; }
+
+        .counter-bar { display: flex; align-items: center; background: #f8fafc; border-radius: 14px; overflow: hidden; border: 1px solid #cbd5e1; }
+        .count-display { padding: 12px 15px; font-weight: 700; color: var(--primary); font-size: 18px; min-width: 45px; text-align: center; background: #fff; border-right: 1px solid #cbd5e1; }
+        .tap-btn { flex-grow: 1; padding: 15px; border: none; background: var(--primary); color: white; font-weight: 600; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: 0.1s; -webkit-tap-highlight-color: transparent; }
+        .tap-btn:active { background: var(--accent); }
+
+        .reset-all { background: #ef4444; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 600; margin: 30px auto; display: block; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="back-link">←</a>
+    <div style="font-weight: 600;">Dhikr & Supplications</div>
+    <div style="width:40px;"></div>
+</header>
+
+<div class="container">
+
+    <div class="category-title">Morning & Evening</div>
+    <div class="doa-card">
+        <div class="doa-title">Tasbih</div>
+        <div class="doa-arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
+        <div class="doa-translation">"Glory be to Allah and His is the praise." (Recite 100x)</div>
+        <div class="counter-bar"><div class="count-display" id="c1">0</div><button class="tap-btn" onclick="hit('c1')">Tap to Count</button></div>
+    </div>
+
+    <div class="doa-card">
+        <div class="doa-title">Protection from Harm (3x)</div>
+        <div class="doa-arabic">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ</div>
+        <div class="doa-translation">"In the name of Allah with whose name nothing is harmed on earth nor in heaven."</div>
+        <div class="counter-bar"><div class="count-display" id="c2">0</div><button class="tap-btn" onclick="hit('c2')">Tap to Count</button></div>
+    </div>
+
+    <div class="doa-card">
+        <div class="doa-title">Protection from Evil</div>
+        <div class="doa-arabic">أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ</div>
+        <div class="doa-translation">"I seek refuge in the perfect words of Allah from the evil of what He has created."</div>
+        <div class="counter-bar"><div class="count-display" id="c3">0</div><button class="tap-btn" onclick="hit('c3')">Tap to Count</button></div>
+    </div>
+
+    <div class="category-title">Daily Life</div>
+    <div class="doa-card">
+        <div class="doa-title">Waking Up</div>
+        <div class="doa-arabic">الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ</div>
+        <div class="doa-translation">"All praise is for Allah who gave us life after having taken it from us and unto Him is the resurrection."</div>
+        <div class="counter-bar"><div class="count-display" id="c4">0</div><button class="tap-btn" onclick="hit('c4')">Tap to Count</button></div>
+    </div>
+
+    <div class="doa-card">
+        <div class="doa-title">Before Sleeping</div>
+        <div class="doa-arabic">بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا</div>
+        <div class="doa-translation">"In Your name, O Allah, I die and I live."</div>
+        <div class="counter-bar"><div class="count-display" id="c5">0</div><button class="tap-btn" onclick="hit('c5')">Tap to Count</button></div>
+    </div>
+
+    <div class="category-title">Ease & Success</div>
+    <div class="doa-card">
+        <div class="doa-title">For Ease in All Matters</div>
+        <div class="doa-arabic">اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا</div>
+        <div class="doa-translation">"O Allah, there is no ease except in what You have made easy, and You make the difficulty easy if You wish."</div>
+        <div class="counter-bar"><div class="count-display" id="c6">0</div><button class="tap-btn" onclick="hit('c6')">Tap to Count</button></div>
+    </div>
+
+    <div class="doa-card">
+        <div class="doa-title">Increasing Knowledge</div>
+        <div class="doa-arabic">رَّبِّ زِدْنِي عِلْمًا</div>
+        <div class="doa-translation">"My Lord, increase me in knowledge."</div>
+        <div class="counter-bar"><div class="count-display" id="c7">0</div><button class="tap-btn" onclick="hit('c7')">Tap to Count</button></div>
+    </div>
+
+    <div class="category-title">Provision & Wealth</div>
+    <div class="doa-card">
+        <div class="doa-title">Seeking Good Provision</div>
+        <div class="doa-arabic">اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا</div>
+        <div class="doa-translation">"O Allah, I ask You for beneficial knowledge, good provision, and accepted deeds."</div>
+        <div class="counter-bar"><div class="count-display" id="c8">0</div><button class="tap-btn" onclick="hit('c8')">Tap to Count</button></div>
+    </div>
+
+    <div class="doa-card">
+        <div class="doa-title">Protection from Debt & Anxiety</div>
+        <div class="doa-arabic">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ</div>
+        <div class="doa-translation">"O Allah, I seek refuge in You from anxiety, sorrow, debt, and being overpowered by men."</div>
+        <div class="counter-bar"><div class="count-display" id="c9">0</div><button class="tap-btn" onclick="hit('c9')">Tap to Count</button></div>
+    </div>
+
+    <div class="category-title">Forgiveness</div>
+    <div class="doa-card">
+        <div class="doa-title">Istighfar</div>
+        <div class="doa-arabic">أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ</div>
+        <div class="doa-translation">"I seek Allah's forgiveness and turn to Him in repentance."</div>
+        <div class="counter-bar"><div class="count-display" id="c10">0</div><button class="tap-btn" onclick="hit('c10')">Tap to Count</button></div>
+    </div>
+
+    <div class="doa-card">
+        <div class="doa-title">Dua for Parents</div>
+        <div class="doa-arabic">رَّبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا</div>
+        <div class="doa-translation">"My Lord, forgive me and my parents and have mercy on them."</div>
+        <div class="counter-bar"><div class="count-display" id="c11">0</div><button class="tap-btn" onclick="hit('c11')">Tap to Count</button></div>
+    </div>
+
+    <div class="category-title">Health</div>
+    <div class="doa-card">
+        <div class="doa-title">Dua for Wellbeing</div>
+        <div class="doa-arabic">اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي</div>
+        <div class="doa-translation">"O Allah, grant me health in my body, my hearing, and my sight."</div>
+        <div class="counter-bar"><div class="count-display" id="c12">0</div><button class="tap-btn" onclick="hit('c12')">Tap to Count</button></div>
+    </div>
+
+    <button class="reset-all" onclick="resetAll()">Reset All Progress</button>
+</div>
+
+<script>
+    function hit(id) {
+        let el = document.getElementById(id);
+        let current = parseInt(el.innerText);
+        el.innerText = current + 1;
+        if (navigator.vibrate) navigator.vibrate(35);
+        localStorage.setItem('ultimate_'+id, el.innerText);
+    }
+
+    function resetAll() {
+        if(confirm("Are you sure you want to clear all counts?")) {
+            const displays = document.querySelectorAll('.count-display');
+            displays.forEach(d => {
+                d.innerText = "0";
+                localStorage.removeItem('ultimate_'+d.id);
+            });
+        }
+    }
+
+    window.onload = () => {
+        const displays = document.querySelectorAll('.count-display');
+        displays.forEach(d => {
+            let saved = localStorage.getItem('ultimate_'+d.id);
+            if(saved) d.innerText = saved;
+        });
+    }
+</script>
+
+</body>
+</html>
