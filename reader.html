@@ -1,0 +1,60 @@
+here<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baca Surat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #004d40; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: white; }
+        .nav { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; position: sticky; top:0; }
+        .back-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; text-decoration: none; }
+        .ayah { padding: 30px 20px; border-bottom: 1px solid #f1f5f9; }
+        .ar { text-align: right; font-size: 32px; font-family: 'Amiri', serif; line-height: 2.5; direction: rtl; }
+        .en { font-size: 16px; color: #475569; line-height: 1.8; margin-top: 15px; }
+        .num { display: inline-block; width: 30px; height: 30px; border: 1px solid #ddd; border-radius: 50%; text-align: center; line-height: 30px; font-size: 13px; color: var(--primary); margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="index.html" class="back-btn">←</a>
+        <h3 id="title" style="margin:0">Memuat...</h3>
+    </div>
+    <div id="content"></div>
+
+    <script>
+        async function loadSurah() {
+            // Ambil ID dari URL (?id=0)
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+
+            const [resAr, resEn] = await Promise.all([
+                fetch('quran.json'),
+                fetch('en.sahih.json')
+            ]);
+            
+            const dataAr = await resAr.json();
+            const rawEn = await resEn.json();
+            const dataEn = rawEn.data.surahs;
+
+            const surahAr = dataAr[id];
+            const surahEn = dataEn[id];
+
+            document.getElementById('title').innerText = surahAr.transliteration;
+            const content = document.getElementById('content');
+
+            surahAr.verses.forEach((v, i) => {
+                const div = document.createElement('div');
+                div.className = 'ayah';
+                div.innerHTML = `
+                    <div class="ar">${v.text} <span class="num">${v.id}</span></div>
+                    <div class="en">${surahEn.ayahs[i].text}</div>
+                `;
+                content.appendChild(div);
+            });
+        }
+        loadSurah();
+    </script>
+</body>
+</html>
