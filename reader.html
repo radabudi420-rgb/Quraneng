@@ -90,7 +90,7 @@
                         <div class="controls">
                             <div class="ayah-num">${v.id}</div>
                             <button class="play-btn" onclick="playAudio('${audioUrl}', this)">
-                                <span>▶</span> Putar Audio
+                                <span>▶</span> Play
                             </button>
                         </div>
                     `;
@@ -105,7 +105,7 @@
             // Jika ada audio yang sedang jalan, hentikan dulu
             if (currentAudio) {
                 currentAudio.pause();
-                currentBtn.innerHTML = '<span>▶</span> Putar Audio';
+                currentBtn.innerHTML = '<span>▶</span> Play';
                 currentBtn.style.background = '#f1f5f9';
                 currentBtn.style.color = 'var(--primary)';
             }
@@ -121,7 +121,7 @@
             currentAudio = new Audio(url);
             currentBtn = btn;
             
-            btn.innerHTML = '<span>⏸</span> Berhenti';
+            btn.innerHTML = '<span>⏸</span> Pause';
             btn.style.background = 'var(--primary)';
             btn.style.color = 'white';
 
