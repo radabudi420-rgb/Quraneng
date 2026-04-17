@@ -6,54 +6,136 @@
     <title>Baca Surat</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #004d40; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: white; }
-        .nav { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; position: sticky; top:0; }
-        .back-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; margin-right: 15px; text-decoration: none; }
-        .ayah { padding: 30px 20px; border-bottom: 1px solid #f1f5f9; }
-        .ar { text-align: right; font-size: 32px; font-family: 'Amiri', serif; line-height: 2.5; direction: rtl; }
-        .en { font-size: 16px; color: #475569; line-height: 1.8; margin-top: 15px; }
-        .num { display: inline-block; width: 30px; height: 30px; border: 1px solid #ddd; border-radius: 50%; text-align: center; line-height: 30px; font-size: 13px; color: var(--primary); margin-left: 10px; }
+        :root { --primary: #004d40; --accent: #f4bb44; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: #ffffff; color: #1e293b; }
+        
+        .nav { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; position: sticky; top:0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .back-btn { background: rgba(255,255,255,0.1); border: none; color: white; font-size: 20px; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; margin-right: 15px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+        
+        /* Gaya Bismillah */
+        .bismillah { text-align: center; font-family: 'Amiri', serif; font-size: 28px; padding: 30px 0; color: var(--primary); border-bottom: 2px double #eee; margin-bottom: 10px; }
+
+        .ayah-item { padding: 30px 20px; border-bottom: 1px solid #f1f5f9; position: relative; }
+        .ar-container { display: flex; flex-direction: column; align-items: flex-end; width: 100%; }
+        .ar-text { text-align: right; font-size: 32px; font-family: 'Amiri', serif; line-height: 2.5; direction: rtl; margin-bottom: 15px; }
+        
+        .en-text { font-size: 16px; color: #475569; line-height: 1.8; text-align: left; width: 100%; }
+
+        /* Tombol Kontrol */
+        .controls { display: flex; gap: 10px; margin-top: 15px; align-items: center; }
+        .play-btn { background: #f1f5f9; border: none; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .play-btn:hover { background: var(--accent); color: white; }
+        .ayah-num { width: 28px; height: 28px; border: 1px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-muted); }
     </style>
 </head>
 <body>
     <div class="nav">
         <a href="index.html" class="back-btn">←</a>
-        <h3 id="title" style="margin:0">Memuat...</h3>
+        <h3 id="title" style="margin:0; font-weight: 500;">Memuat...</h3>
     </div>
+    
     <div id="content"></div>
 
     <script>
+        let currentAudio = null;
+        let currentBtn = null;
+
         async function loadSurah() {
-            // Ambil ID dari URL (?id=0)
             const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
+            const id = parseInt(params.get('id')); // Index surat (0-113)
+            const surahNumber = id + 1;
 
-            const [resAr, resEn] = await Promise.all([
-                fetch('quran.json'),
-                fetch('en.sahih.json')
-            ]);
-            
-            const dataAr = await resAr.json();
-            const rawEn = await resEn.json();
-            const dataEn = rawEn.data.surahs;
+            try {
+                const [resAr, resEn] = await Promise.all([
+                    fetch('quran.json'),
+                    fetch('en.sahih.json')
+                ]);
+                
+                const dataAr = await resAr.json();
+                const rawEn = await resEn.json();
+                const dataEn = rawEn.data.surahs;
 
-            const surahAr = dataAr[id];
-            const surahEn = dataEn[id];
+                const surahAr = dataAr[id];
+                const surahEn = dataEn[id];
 
-            document.getElementById('title').innerText = surahAr.transliteration;
-            const content = document.getElementById('content');
+                document.getElementById('title').innerText = surahAr.transliteration;
+                const content = document.getElementById('content');
+                content.innerHTML = '';
 
-            surahAr.verses.forEach((v, i) => {
-                const div = document.createElement('div');
-                div.className = 'ayah';
-                div.innerHTML = `
-                    <div class="ar">${v.text} <span class="num">${v.id}</span></div>
-                    <div class="en">${surahEn.ayahs[i].text}</div>
-                `;
-                content.appendChild(div);
-            });
+                // 1. Logika Penambahan Bismillah
+                // Jangan tampilkan jika Surat Al-Fatihah (ID 1) atau At-Tawbah (ID 9)
+                if (surahNumber !== 1 && surahNumber !== 9) {
+                    const bis = document.createElement('div');
+                    bis.className = 'bismillah';
+                    bis.innerText = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
+                    content.appendChild(bis);
+                }
+
+                // 2. Loop Ayat
+                surahAr.verses.forEach((v, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'ayah-item';
+                    
+                    // Format audio URL: https://cdn.islamic.network/quran/audio/128/ar.alafasy/{surahNumber}{ayahNumber}.mp3
+                    // Kita perlu memastikan nomor ayat dipadding dengan 0 jika perlu (API alafasy biasanya butuh format global nomor ayat)
+                    // Cara paling stabil: gunakan global ayah number dari en.sahih.json
+                    const globalAyahId = surahEn.ayahs[i].number;
+                    const audioUrl = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${globalAyahId}.mp3`;
+
+                    div.innerHTML = `
+                        <div class="ar-container">
+                            <div class="ar-text">${v.text}</div>
+                        </div>
+                        <div class="en-text">${surahEn.ayahs[i].text}</div>
+                        <div class="controls">
+                            <div class="ayah-num">${v.id}</div>
+                            <button class="play-btn" onclick="playAudio('${audioUrl}', this)">
+                                <span>▶</span> Putar Audio
+                            </button>
+                        </div>
+                    `;
+                    content.appendChild(div);
+                });
+            } catch (e) {
+                document.getElementById('content').innerHTML = "<p style='padding:20px;'>Gagal memuat surat. Pastikan file JSON lengkap.</p>";
+            }
         }
+
+        function playAudio(url, btn) {
+            // Jika ada audio yang sedang jalan, hentikan dulu
+            if (currentAudio) {
+                currentAudio.pause();
+                currentBtn.innerHTML = '<span>▶</span> Putar Audio';
+                currentBtn.style.background = '#f1f5f9';
+                currentBtn.style.color = 'var(--primary)';
+            }
+
+            // Jika klik tombol yang sama saat sedang jalan, maka stop saja
+            if (currentAudio && currentAudio.src === url) {
+                currentAudio = null;
+                currentBtn = null;
+                return;
+            }
+
+            // Putar audio baru
+            currentAudio = new Audio(url);
+            currentBtn = btn;
+            
+            btn.innerHTML = '<span>⏸</span> Berhenti';
+            btn.style.background = 'var(--primary)';
+            btn.style.color = 'white';
+
+            currentAudio.play();
+
+            currentAudio.onended = () => {
+                btn.innerHTML = '<span>▶</span> Putar Audio';
+                btn.style.background = '#f1f5f9';
+                btn.style.color = 'var(--primary)';
+                currentAudio = null;
+                currentBtn = null;
+            };
+        }
+
         loadSurah();
     </script>
 </body>
