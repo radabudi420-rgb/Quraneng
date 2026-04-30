@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayer Times</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #004d40; --accent: #f4bb44; --bg: #f1f5f9; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: #1e293b; }
+        header { background: var(--primary); color: white; padding: 20px; text-align: center; position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { color: white; text-decoration: none; font-size: 20px; width: 40px; }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+        
+        .location-box { background: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); display: flex; gap: 8px; }
+        input { flex: 1; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; font-size: 14px; }
+        button { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; }
+
+        .time-row { 
+            display: flex; justify-content: space-between; align-items: center;
+            background: white; padding: 20px; border-radius: 12px; margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 6px solid var(--primary);
+        }
+        .p-name { font-weight: 600; color: #475569; }
+        .p-time { font-weight: 700; font-size: 1.2rem; color: var(--primary); }
+        .date-info { text-align: center; margin-bottom: 20px; font-size: 14px; color: #64748b; background: #e2e8f0; padding: 8px; border-radius: 20px; }
+        
+        .error-msg { background: #fee2e2; color: #b91c1c; padding: 15px; border-radius: 10px; text-align: center; font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="dashboard.html" class="back-btn">←</a>
+    <div style="font-weight: 600;">Prayer Times</div>
+    <div style="width:40px;"></div>
+</header>
+
+<div class="container">
+    <div class="location-box">
+        <input type="text" id="cityInput" placeholder="Enter City (e.g. London)">
+        <button onclick="fetchTimes()">Search</button>
+    </div>
+
+    <div id="errorBox" class="error-msg">City not found. Please use English city names.</div>
+    <div class="date-info" id="currentDate">Detecting date...</div>
+
+    <div id="timesContainer">
+        <p style="text-align: center; color: #64748b;">Enter city and press Search...</p>
+    </div>
+</div>
+
+<script>
+    async function fetchTimes() {
+        const city = document.getElementById('cityInput').value.trim();
+        if (!city) return;
+
+        const container = document.getElementById('timesContainer');
+        const errorBox = document.getElementById('errorBox');
+        
+        container.innerHTML = '<p style="text-align:center; padding: 20px;">Fetching global data...</p>';
+        errorBox.style.display = 'none';
+
+        try {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth() + 1;
+            const day = today.getDate() - 1; 
+
+            // Menggunakan Aladhan API dengan format yang lebih aman
+            const url = `https://api.aladhan.com/v1/timingsByCity/${today.getDate()}-${month}-${year}?city=${encodeURIComponent(city)}&country=&method=2`;
+            
+            const response = await fetch(url);
+            const result = await response.json();
+
+            if (result.code !== 200) throw new Error("City Not Found");
+
+            const timings = result.data.timings;
+            const date = result.data.date;
+
+            document.getElementById('currentDate').innerText = `${date.readable} | ${date.hijri.day} ${date.hijri.month.en}`;
+
+            const prayers = [
+                { id: 'Fajr', name: 'Fajr' },
+                { id: 'Sunrise', name: 'Sunrise' },
+                { id: 'Dhuhr', name: 'Dhuhr' },
+                { id: 'Asr', name: 'Asr' },
+                { id: 'Maghrib', name: 'Maghrib' },
+                { id: 'Isha', name: 'Isha' }
+            ];
+
+            container.innerHTML = '';
+            prayers.forEach(p => {
+                const row = document.createElement('div');
+                row.className = 'time-row';
+                row.innerHTML = `
+                    <span class="p-name">${p.name}</span>
+                    <span class="p-time">${timings[p.id]}</span>
+                `;
+                container.appendChild(row);
+            });
+
+            // Simpan kota terakhir agar saat buka lagi tidak kosong
+            localStorage.setItem('lastCity', city);
+
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = '';
+            errorBox.style.display = 'block';
+            errorBox.innerText = "Error: Make sure city name is correct and you have internet connection.";
+        }
+    }
+
+    // Load last searched city on startup
+    window.onload = () => {
+        const lastCity = localStorage.getItem('lastCity');
+        if (lastCity) {
+            document.getElementById('cityInput').value = lastCity;
+            fetchTimes();
+        }
+    };
+</script>
+
+</body>
+</html>
