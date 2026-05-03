@@ -98,20 +98,29 @@
         const container = document.getElementById('versesContainer');
         container.innerHTML = "";
 
+        // Tampilkan setiap ayat
         currentSurah.verses.forEach((verse, index) => {
             let transText = "Terjemahan belum tersedia.";
             if (sahihSurah && sahihSurah.ayahs && sahihSurah.ayahs[index]) {
                 transText = sahihSurah.ayahs[index].text;
             }
 
-            const globalAyahNumber = index + 1;
+            // Hitung nomor global (ayat 1 hingga 6236) yang digunakan oleh API Al-Qur'an (Mishary Rashid / Alafasy)
+            const globalAyahNumber = getGlobalAyahNumber(quranData, surahId, index);
             
+            // Cek apakah ayat tersebut adalah "Bismillah"
+            const isBismillah = verse.text.includes("بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ");
+            // Jika bukan Surah Al-Fatihah dan ayatnya adalah Bismillah, kita lewati/tidak tampilkan
+            if (surahId !== 1 && isBismillah) {
+                return; 
+            }
+
             const card = document.createElement('div');
             card.className = 'verse-card';
             card.innerHTML = `
                 <div class="verse-header">
                     <div class="verse-num">Ayat ${verse.id}</div>
-                    <button class="btn-audio" onclick="playAyah(${surahId}, ${globalAyahNumber}, this)">
+                    <button class="btn-audio" onclick="playAyah(${globalAyahNumber}, this)">
                         ▶ Play Audio
                     </button>
                 </div>
@@ -122,10 +131,21 @@
         });
     }
 
-    function playAyah(surahNumber, ayahNumber, buttonElement) {
-        // Menggunakan sumber dari audio.alquran.cloud yang lebih stabil & resmi
-        const audioUrl = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNumber}.mp3`;
-        // Catatan: Jika ingin memutar per surah lengkap, format URL bisa disesuaikan, namun untuk per ayat dapat langsung memakai URL di atas.
+    // Fungsi untuk menghitung nomor urut ayat global (1 hingga 6236)
+    function getGlobalAyahNumber(quranData, currentSurahId, currentIndex) {
+        let globalNumber = 0;
+        
+        for (let i = 0; i < currentSurahId - 1; i++) {
+            globalNumber += quranData[i].verses.length;
+        }
+        
+        globalNumber += (currentIndex + 1);
+        return globalNumber;
+    }
+
+    function playAyah(globalAyahNumber, buttonElement) {
+        // Menggunakan sumber dari audio.alquran.cloud dengan pelantun "ar.alafasy" (Mishary Rashid) yang didasarkan pada penomoran global.
+        const audioUrl = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${globalAyahNumber}.mp3`;
 
         if (audioPlayer.src === audioUrl && !audioPlayer.paused) {
             audioPlayer.pause();
