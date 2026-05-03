@@ -58,7 +58,6 @@
 <audio id="audioPlayer" style="display:none;"></audio>
 
 <script>
-    // Menyimpan referensi elemen audio global
     let currentPlayingBtn = null;
     const audioPlayer = document.getElementById('audioPlayer');
 
@@ -72,7 +71,7 @@
 
             renderPage(qData, sData);
         } catch (error) {
-            console.error("Gagal memuat data JSON:", error);
+            console.error("Gagal memuat file JSON:", error);
             document.getElementById('surahTitle').innerText = "Error Loading Data";
             document.getElementById('versesContainer').innerHTML = `<p style="text-align:center;">Pastikan file quran.json dan en.sahih.json berada di folder yang sama.</p>`;
         }
@@ -82,7 +81,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const surahId = parseInt(urlParams.get('id')) || 1;
 
-        // Cari Surah di quran.json
         const currentSurah = quranData.find(s => s.id === surahId);
         if (!currentSurah) {
             document.getElementById('surahTitle').innerText = "Surah tidak ditemukan";
@@ -92,7 +90,6 @@
         document.getElementById('surahTitle').innerText = `${currentSurah.name} - ${currentSurah.transliteration}`;
         document.getElementById('headerTitle').innerText = currentSurah.name;
 
-        // Cari Surah di en.sahih.json
         let sahihSurah = null;
         if (sahihData && sahihData.data && sahihData.data.surahs) {
             sahihSurah = sahihData.data.surahs.find(s => s.number === surahId);
@@ -101,14 +98,12 @@
         const container = document.getElementById('versesContainer');
         container.innerHTML = "";
 
-        // Tampilkan setiap ayat
         currentSurah.verses.forEach((verse, index) => {
             let transText = "Terjemahan belum tersedia.";
             if (sahihSurah && sahihSurah.ayahs && sahihSurah.ayahs[index]) {
                 transText = sahihSurah.ayahs[index].text;
             }
 
-            // Standarisasi ID ayat (1 sampai N)
             const globalAyahNumber = index + 1;
             
             const card = document.createElement('div');
@@ -128,32 +123,33 @@
     }
 
     function playAyah(surahNumber, ayahNumber, buttonElement) {
-        // Format URL Audio publik dari EverydayMuslim / Audio Alquran
-        // Format: https://cdn.islamic.network/quran/audio/128/ar.alafasy/{surah}_{ayat}.mp3
-        const formattedAyahNumber = ayahNumber.toString().padStart(3, '0'); // Contoh: Surah 1, Ayat 1 -> 001001
-        const audioUrl = `https://download.quranicaudio.com/quran/mishary_rashid_al_afasy/${surahNumber.toString().padStart(3, '0')}${formattedAyahNumber}.mp3`;
+        // Menggunakan sumber dari audio.alquran.cloud yang lebih stabil & resmi
+        const audioUrl = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNumber}.mp3`;
+        // Catatan: Jika ingin memutar per surah lengkap, format URL bisa disesuaikan, namun untuk per ayat dapat langsung memakai URL di atas.
 
         if (audioPlayer.src === audioUrl && !audioPlayer.paused) {
             audioPlayer.pause();
             buttonElement.innerHTML = "▶ Play Audio";
             currentPlayingBtn = null;
         } else {
-            // Reset tombol sebelumnya
             if (currentPlayingBtn) {
                 currentPlayingBtn.innerHTML = "▶ Play Audio";
             }
             
+            buttonElement.innerHTML = "<i>Loading...</i>";
+            
             audioPlayer.src = audioUrl;
-            audioPlayer.play().then(() => {
-                buttonElement.innerHTML = "⏸ Pause";
-                currentPlayingBtn = buttonElement;
-            }).catch(err => {
-                alert("Audio tidak ditemukan atau jaringan terputus.");
-                buttonElement.innerHTML = "▶ Play Audio";
-            });
+            audioPlayer.play()
+                .then(() => {
+                    buttonElement.innerHTML = "⏸ Pause";
+                    currentPlayingBtn = buttonElement;
+                })
+                .catch(err => {
+                    alert("Gagal memuat audio. Silakan periksa jaringan Anda.");
+                    buttonElement.innerHTML = "▶ Play Audio";
+                });
         }
 
-        // Kembali ke tombol Play otomatis ketika audio selesai
         audioPlayer.onended = function() {
             if (buttonElement) buttonElement.innerHTML = "▶ Play Audio";
         };
