@@ -3,140 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baca Surat</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <title>Surah Reader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #004d40; --accent: #f4bb44; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: #ffffff; color: #1e293b; }
+        :root {
+            --primary: #004d40;
+            --secondary: #00695c;
+            --bg: #f8fafc;
+            --accent: #f4bb44;
+        }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: #1e293b; padding-bottom: 50px; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .back-link { color: white; text-decoration: none; font-size: 24px; width: 50px; }
+        .container { max-width: 600px; margin: auto; padding: 20px; }
+        .title { text-align: center; font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
         
-        .nav { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; position: sticky; top:0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .back-btn { background: rgba(255,255,255,0.1); border: none; color: white; font-size: 20px; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; margin-right: 15px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-        
-        /* Gaya Bismillah */
-        .bismillah { text-align: center; font-family: 'Amiri', serif; font-size: 28px; padding: 30px 0; color: var(--primary); border-bottom: 2px double #eee; margin-bottom: 10px; }
-
-        .ayah-item { padding: 30px 20px; border-bottom: 1px solid #f1f5f9; position: relative; }
-        .ar-container { display: flex; flex-direction: column; align-items: flex-end; width: 100%; }
-        .ar-text { text-align: right; font-size: 32px; font-family: 'Amiri', serif; line-height: 2.5; direction: rtl; margin-bottom: 15px; }
-        
-        .en-text { font-size: 16px; color: #475569; line-height: 1.8; text-align: left; width: 100%; }
-
-        /* Tombol Kontrol */
-        .controls { display: flex; gap: 10px; margin-top: 15px; align-items: center; }
-        .play-btn { background: #f1f5f9; border: none; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 5px; transition: 0.2s; }
-        .play-btn:hover { background: var(--accent); color: white; }
-        .ayah-num { width: 28px; height: 28px; border: 1px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-muted); }
+        .verse-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .verse-num { font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 10px; }
+        .ar-text { font-family: 'Amiri', serif; font-size: 26px; text-align: right; direction: rtl; color: #000; line-height: 2.2; margin-bottom: 10px; }
+        .en-text { font-size: 14px; color: #475569; font-style: italic; border-left: 3px solid var(--accent); padding-left: 15px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="index.html" class="back-btn">←</a>
-        <h3 id="title" style="margin:0; font-weight: 500;">Memuat...</h3>
-    </div>
-    
-    <div id="content"></div>
 
-    <script>
-        let currentAudio = null;
-        let currentBtn = null;
+<header>
+    <a href="index.html" class="back-link">←</a>
+    <div style="font-weight: 600;" id="headerTitle">Reading Mode</div>
+    <div style="width: 50px;"></div>
+</header>
 
-        async function loadSurah() {
-            const params = new URLSearchParams(window.location.search);
-            const id = parseInt(params.get('id')); // Index surat (0-113)
-            const surahNumber = id + 1;
+<div class="container">
+    <div class="title" id="surahTitle">Loading...</div>
+    <div id="versesContainer"></div>
+</div>
 
-            try {
-                const [resAr, resEn] = await Promise.all([
-                    fetch('quran.json'),
-                    fetch('en.sahih.json')
-                ]);
-                
-                const dataAr = await resAr.json();
-                const rawEn = await resEn.json();
-                const dataEn = rawEn.data.surahs;
+<script>
+    async function loadData() {
+        try {
+            // Memuat file JSON
+            const qRes = await fetch('quran.json');
+            const qData = await qRes.json();
 
-                const surahAr = dataAr[id];
-                const surahEn = dataEn[id];
+            const sRes = await fetch('en.sahih.json');
+            const sData = await sRes.json();
 
-                document.getElementById('title').innerText = surahAr.transliteration;
-                const content = document.getElementById('content');
-                content.innerHTML = '';
+            renderPage(qData, sData);
+        } catch (error) {
+            console.error("Gagal memuat data JSON:", error);
+            document.getElementById('surahTitle').innerText = "Error Loading Data";
+            document.getElementById('versesContainer').innerHTML = `<p style="text-align:center;">Pastikan file quran.json dan en.sahih.json berada di folder yang sama.</p>`;
+        }
+    }
 
-                // 1. Logika Penambahan Bismillah
-                // Jangan tampilkan jika Surat Al-Fatihah (ID 1) atau At-Tawbah (ID 9)
-                if (surahNumber !== 1 && surahNumber !== 9) {
-                    const bis = document.createElement('div');
-                    bis.className = 'bismillah';
-                    bis.innerText = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
-                    content.appendChild(bis);
-                }
+    function renderPage(quranData, sahihData) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const surahId = parseInt(urlParams.get('id')) || 1;
 
-                // 2. Loop Ayat
-                surahAr.verses.forEach((v, i) => {
-                    const div = document.createElement('div');
-                    div.className = 'ayah-item';
-                    
-                    // Format audio URL: https://cdn.islamic.network/quran/audio/128/ar.alafasy/{surahNumber}{ayahNumber}.mp3
-                    // Kita perlu memastikan nomor ayat dipadding dengan 0 jika perlu (API alafasy biasanya butuh format global nomor ayat)
-                    // Cara paling stabil: gunakan global ayah number dari en.sahih.json
-                    const globalAyahId = surahEn.ayahs[i].number;
-                    const audioUrl = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${globalAyahId}.mp3`;
-
-                    div.innerHTML = `
-                        <div class="ar-container">
-                            <div class="ar-text">${v.text}</div>
-                        </div>
-                        <div class="en-text">${surahEn.ayahs[i].text}</div>
-                        <div class="controls">
-                            <div class="ayah-num">${v.id}</div>
-                            <button class="play-btn" onclick="playAudio('${audioUrl}', this)">
-                                <span>▶</span> Play
-                            </button>
-                        </div>
-                    `;
-                    content.appendChild(div);
-                });
-            } catch (e) {
-                document.getElementById('content').innerHTML = "<p style='padding:20px;'>Gagal memuat surat. Pastikan file JSON lengkap.</p>";
-            }
+        // Cari Surah di quran.json
+        const currentSurah = quranData.find(s => s.id === surahId);
+        if (!currentSurah) {
+            document.getElementById('surahTitle').innerText = "Surah tidak ditemukan";
+            return;
         }
 
-        function playAudio(url, btn) {
-            // Jika ada audio yang sedang jalan, hentikan dulu
-            if (currentAudio) {
-                currentAudio.pause();
-                currentBtn.innerHTML = '<span>▶</span> Play';
-                currentBtn.style.background = '#f1f5f9';
-                currentBtn.style.color = 'var(--primary)';
-            }
+        document.getElementById('surahTitle').innerText = `${currentSurah.name} - ${currentSurah.transliteration}`;
+        document.getElementById('headerTitle').innerText = currentSurah.name;
 
-            // Jika klik tombol yang sama saat sedang jalan, maka stop saja
-            if (currentAudio && currentAudio.src === url) {
-                currentAudio = null;
-                currentBtn = null;
-                return;
-            }
-
-            // Putar audio baru
-            currentAudio = new Audio(url);
-            currentBtn = btn;
-            
-            btn.innerHTML = '<span>⏸</span> Pause';
-            btn.style.background = 'var(--primary)';
-            btn.style.color = 'white';
-
-            currentAudio.play();
-
-            currentAudio.onended = () => {
-                btn.innerHTML = '<span>▶</span> Putar Audio';
-                btn.style.background = '#f1f5f9';
-                btn.style.color = 'var(--primary)';
-                currentAudio = null;
-                currentBtn = null;
-            };
+        // Cari Surah di en.sahih.json
+        let sahihSurah = null;
+        if (sahihData && sahihData.data && sahihData.data.surahs) {
+            sahihSurah = sahihData.data.surahs.find(s => s.number === surahId);
         }
 
-        loadSurah();
-    </script>
+        const container = document.getElementById('versesContainer');
+        container.innerHTML = "";
+
+        // Tampilkan setiap ayat
+        currentSurah.verses.forEach((verse, index) => {
+            let transText = "Terjemahan belum tersedia.";
+            if (sahihSurah && sahihSurah.ayahs && sahihSurah.ayahs[index]) {
+                transText = sahihSurah.ayahs[index].text;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'verse-card';
+            card.innerHTML = `
+                <div class="verse-num">Ayat ${verse.id}</div>
+                <div class="ar-text">${verse.text}</div>
+                <div class="en-text">${transText}</div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    window.onload = loadData;
+</script>
+
 </body>
 </html>
