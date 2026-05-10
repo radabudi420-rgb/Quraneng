@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lecteur de Sourates</title>
+    <title>Surah Reader</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -19,7 +19,7 @@
         
         .surah-info-container { text-align: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .surah-name-ar { font-family: 'Amiri', serif; font-size: 42px; color: var(--primary); margin: 10px 0; }
-        .surah-name-fr { font-size: 20px; font-weight: 700; color: #334155; }
+        .surah-name-en { font-size: 20px; font-weight: 700; color: #334155; }
 
         .ayah-card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .ayah-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
@@ -37,7 +37,7 @@
 
 <header>
     <a href="index.html" class="back-link">←</a>
-    <div id="header-title" style="font-weight: 600;">Chargement...</div>
+    <div id="header-title" style="font-weight: 600;">Loading...</div>
     <div style="width: 50px;"></div>
 </header>
 
@@ -45,7 +45,7 @@
     <div id="content">
         </div>
     <div id="error-msg" style="display: none;">
-        Fichier 'quran.js' introuvable. Assurez-vous de l'avoir créé.
+        File 'quran.js' not found. Please make sure the data is properly linked.
     </div>
 </div>
 
@@ -56,22 +56,20 @@
     let currentPlayingBtn = null;
 
     function loadData() {
-        // Ambil ID Surah dari URL (misal reader.html?id=1)
         const params = new URLSearchParams(window.location.search);
         const surahId = parseInt(params.get('id')) || 1;
 
-        // CEK APAKAH DATA DARI quran.js TERSEDIA
+        // CHECK IF OFFLINE DATA FROM quran.js IS AVAILABLE
         if (typeof quranData !== 'undefined') {
             const surah = quranData.find(s => s.id === surahId);
             if (surah) {
                 renderSurah(surah);
             } else {
-                document.getElementById('content').innerHTML = "Sourate non trouvée.";
+                document.getElementById('content').innerHTML = "Surah not found.";
             }
         } else {
-            // Jika quranData tidak ada (quran.js belum dipanggil/dibuat)
             document.getElementById('error-msg').style.display = 'block';
-            document.getElementById('header-title').innerText = "Erreur";
+            document.getElementById('header-title').innerText = "Error";
         }
     }
 
@@ -81,9 +79,9 @@
         
         let html = `
             <div class="surah-info-container">
-                <div class="surah-name-fr">${surah.transliteration}</div>
+                <div class="surah-name-en">${surah.transliteration}</div>
                 <div class="surah-name-ar">${surah.name}</div>
-                <div style="color: #64748b; font-size: 14px;">${surah.type.toUpperCase()} • ${surah.total_verses} Versets</div>
+                <div style="color: #64748b; font-size: 14px;">${surah.type.toUpperCase()} • ${surah.total_verses} Verses</div>
             </div>
         `;
 
@@ -93,7 +91,7 @@
                 <div class="ayah-card">
                     <div class="ayah-header">
                         <div class="ayah-number">${ayah.id}</div>
-                        <button class="btn-audio" onclick="playAyah(${globalAyahNum}, this)">▶ Écouter</button>
+                        <button class="btn-audio" onclick="playAyah(${globalAyahNum}, this)">▶ Play Audio</button>
                     </div>
                     <div class="ayah-text">${ayah.text}</div>
                 </div>
@@ -117,21 +115,21 @@
 
         if (audioPlayer.src === url && !audioPlayer.paused) {
             audioPlayer.pause();
-            btn.innerHTML = "▶ Écouter";
+            btn.innerHTML = "▶ Play Audio";
         } else {
-            if (currentPlayingBtn) currentPlayingBtn.innerHTML = "▶ Écouter";
-            btn.innerHTML = "<i>Chargement...</i>";
+            if (currentPlayingBtn) currentPlayingBtn.innerHTML = "▶ Play Audio";
+            btn.innerHTML = "<i>Loading...</i>";
             audioPlayer.src = url;
             audioPlayer.play().then(() => {
                 btn.innerHTML = "⏸ Pause";
                 currentPlayingBtn = btn;
             }).catch(() => {
-                alert("Erreur audio. Vérifiez votre connexion.");
-                btn.innerHTML = "▶ Écouter";
+                alert("Audio error. Please check your connection.");
+                btn.innerHTML = "▶ Play Audio";
             });
         }
 
-        audioPlayer.onended = () => { btn.innerHTML = "▶ Écouter"; };
+        audioPlayer.onended = () => { btn.innerHTML = "▶ Play Audio"; };
     }
 
     window.onload = loadData;
