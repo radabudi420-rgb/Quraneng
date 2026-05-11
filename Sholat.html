@@ -131,19 +131,23 @@
     }
 
     function addStep(container, rakaatNum, data, imgFile) {
-        const card = document.createElement('div');
-        card.className = "step-card";
-        card.innerHTML = `
-            <div class="rakaat-badge">Raka'at ${rakaatNum}</div>
-            <div class="action-title">${data.title}</div>
-            <div class="img-box">
-                <img src="images/${imgFile}" alt="${data.title}" onerror="this.parentElement.innerHTML='[IMAGE: ${data.title}]'">
-            </div>
-            <div class="ar">${data.ar}</div>
-            <div class="en">${data.en}</div>
-        `;
-        container.appendChild(card);
-    }
+    const card = document.createElement('div');
+    card.className = "step-card";
+    
+    // Sembunyikan div arab jika kosong
+    const arHtml = data.ar ? `<div class="ar">${data.ar}</div>` : '';
+    
+    card.innerHTML = `
+        <div class="rakaat-badge">Raka'at ${rakaatNum}</div>
+        <div class="action-title">${data.title}</div>
+        <div class="img-box">
+            <img src="${imgFile}" alt="${data.title}" onerror="this.parentElement.innerHTML='[IMAGE NOT FOUND]'">
+        </div>
+        ${arHtml}
+        <div class="fr">${data.fr}</div>
+    `;
+    container.appendChild(card);
+}
 </script>
 
 </body>
